@@ -1,3 +1,7 @@
+import os
+import pandas as pd
+from langchain.tools import tool
+from settings import INPUT_DIR, OUTPUT_DIR
 from typing_extensions import Annotated, Sequence, TypedDict, List, Dict
 from langchain_core.messages import BaseMessage
 from langchain_core.messages import ToolMessage
@@ -6,15 +10,15 @@ from langgraph.graph.message import add_messages
 from langchain_core.tools import tool
 from langchain_groq import ChatGroq
 
-import os
-import pandas as pd
-from langchain.tools import tool
-from settings import INPUT_DIR, OUTPUT_DIR
+dataframes = {}
 
+
+# Agent Setting
 class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
     files_to_read: List[str]
     files_to_process: List[str]
+    temp_data: List[str]
 
 def get_tools() -> List[tool]:
     return [load_excel, set_index]
@@ -31,6 +35,9 @@ def build_agent() -> ChatGroq:
 
     return agent
 
+
+
+# TOOLS
 @tool
 def add_file_to_read(state: AgentState, filename: str):
     """Adds a file to the list to read"""
@@ -39,16 +46,27 @@ def add_file_to_read(state: AgentState, filename: str):
 
     return state
 
+
 @tool
 def load_excel(state: AgentState, filename: str) -> AgentState:
     """reads an excel file from the filename and returns a dictionary representing it"""
 
     path = os.path.join(INPUT_DIR, filename)
     df = pd.read_excel(path)
+    
+    dataframes[filename] = df
 
-    state['data_dicts'][filename] = df.to_dict()
     state['files_to_read'].remove(filename)
     state['files_to_process'].append(filename)
+
+    return state
+
+
+@tool
+def get_columns(state: AgentState, filename: str) -> AgentState:
+    """Sets temp_data as the columns of a certain file"""
+    df = dataframes[filename]
+    state['temp_data'] = df.columns.to_list()
 
     return state
 

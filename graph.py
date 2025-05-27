@@ -1,16 +1,17 @@
 from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode
-from builder import AgentState, get_tools, build_agent
+from builder import AgentState, get_tools, build_agent, dataframes
 
 agent = build_agent()
 
 def model_call(state: AgentState) -> AgentState:
-    response = agent.invoke(state)
+    response = agent.invoke(state['messages'])
 
     return {"messages": [response]}
 
 def should_continue(state: AgentState):
-    files_to_process = len(state['files_to_process'])
+    files_to_read = len(state.get('files_to_read', []))
+    files_to_process = len(state.get('files_to_process', []))
 
     if files_to_process == 0:
         return "end"
@@ -46,5 +47,7 @@ def print_stream(stream):
         else:
             message.pretty_print()
 
-inputs = {"messages": [("user", "Open Dados Colaboradores.xlsx, set the index to the name and print the dicionary")]}
+inputs = {"messages": [("user", "Open Dados Colaboradores.xlsx and list the columns.")]}
 print_stream(app.stream(inputs, stream_mode="values"))
+
+print(dataframes)
