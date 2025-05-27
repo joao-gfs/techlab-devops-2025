@@ -21,10 +21,11 @@ class AgentState(TypedDict):
     temp_data: List[str]
 
 def get_tools() -> List[tool]:
-    return [load_excel, set_index]
+    return [load_excel, add_file_to_read, get_columns, set_index]
 
 
 #llama3-8b-8192
+#llama3-70b-8192
 def build_agent() -> ChatGroq:
     tools = get_tools()
 
@@ -46,6 +47,13 @@ def add_file_to_read(state: AgentState, filename: str):
 
     return state
 
+@tool
+def remove_processed_file(state: AgentState, filename: str):
+    """Removes a file from the list after it was finished processed"""
+
+    state['files_to_process'].remove(filename)
+
+    return state
 
 @tool
 def load_excel(state: AgentState, filename: str) -> AgentState:
@@ -57,7 +65,7 @@ def load_excel(state: AgentState, filename: str) -> AgentState:
     dataframes[filename] = df
 
     state['files_to_read'].remove(filename)
-    state['files_to_process'].append(filename)
+    #state['files_to_process'].append(filename)
 
     return state
 
