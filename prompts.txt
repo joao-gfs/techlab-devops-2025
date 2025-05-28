@@ -1,0 +1,20 @@
+receber apenas o nome do beneficio:
+
+inputs = {
+    "messages": [(
+        "user",
+        "Load the Excel file named 'Beneficio 1 - Unimed.xlsx' from the input folder. "
+        "Then say in one word (or only the brand name) what benefit or company this spreadsheet is about, based on the filename and column names. "
+        "Respond with only one word, and nothing else."
+    )]
+}
+
+salvar excel:
+
+inputs = {
+    "messages": [(
+        "user",
+        "1. Load the Excel file named 'Exemplo de Resultado.xlsx' from the input folder. "
+        "3. Save the loaded file as 'teste2.xlsx' in the output folder."
+    )]
+}

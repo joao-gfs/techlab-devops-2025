@@ -12,16 +12,13 @@ from langchain_groq import ChatGroq
 
 dataframes = {}
 
-
 # Agent Setting
 class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
-    files_to_read: List[str]
-    files_to_process: List[str]
     temp_data: List[str]
 
 def get_tools() -> List[tool]:
-    return [load_excel, add_file_to_read, get_columns, set_index]
+    return [load_excel, get_columns, save_excel]
 
 
 #llama3-8b-8192
@@ -40,53 +37,57 @@ def build_agent() -> ChatGroq:
 
 # TOOLS
 @tool
-def add_file_to_read(state: AgentState, filename: str):
-    """Adds a file to the list to read"""
+def load_excel(state: AgentState, input_filename: str) -> AgentState:
+    """
+    Loads an Excel file from disk into memory.
 
-    state['files_to_read'].append(filename)
+    Arguments:
+    - input_filename: Name of the Excel file to load (must exist in the input folder).
 
-    return state
-
-@tool
-def remove_processed_file(state: AgentState, filename: str):
-    """Removes a file from the list after it was finished processed"""
-
-    state['files_to_process'].remove(filename)
-
-    return state
-
-@tool
-def load_excel(state: AgentState, filename: str) -> AgentState:
-    """reads an excel file from the filename and returns a dictionary representing it"""
-
-    path = os.path.join(INPUT_DIR, filename)
+    After loading, the contents of the file will be available in memory for further processing.
+    Use this tool before trying to inspect, modify, or export an Excel file.
+    """
+    path = os.path.join(INPUT_DIR, input_filename)
     df = pd.read_excel(path)
     
-    dataframes[filename] = df
-
-    state['files_to_read'].remove(filename)
-    #state['files_to_process'].append(filename)
+    dataframes[input_filename] = df
 
     return state
 
 
 @tool
-def get_columns(state: AgentState, filename: str) -> AgentState:
-    """Sets temp_data as the columns of a certain file"""
+def save_excel(state: AgentState, filename: str, output_filename: str) -> AgentState:
+    """
+    Saves an in-memory Excel file to disk.
+
+    Arguments:
+    - filename: The name of the file previously loaded into memory.
+    - output_filename: The name of the Excel file to be saved on disk.
+
+    Use this tool after processing or modifying a file, to export the result.
+    """
+    if filename not in dataframes:
+        return f"Error: file '{filename}' not found in memory. Load it first using 'load_excel'."
+
+    path = os.path.join(OUTPUT_DIR, output_filename)
     df = dataframes[filename]
-    state['temp_data'] = df.columns.to_list()
 
-    return state
+    df.to_excel(path, index=False)
+
+    return f"File saved successfully as '{output_filename}'"
+
 
 @tool
-def set_index(state: AgentState, filename: str, index_col: str) -> AgentState:
-    """creates the index of the file dict with a column of it"""
-    
-    df = pd.DataFrame(state['file_dicts'][filename])
+def get_columns(state: AgentState, input_filename: str) -> AgentState:
+    """
+    Extracts the column names from a loaded Excel file and stores them in 'temp_data'.
 
-    df.set_index(index_col, inplace=True)
-    
-    state['file_dicts'][filename] = df.to_dict()
-    state['files_to_process'].remove(filename)
+    Arguments:
+    - input_filename: The name of the file previously loaded into memory.
+
+    Use this tool to inspect the structure of a file and understand what data it contains.
+    """
+    df = dataframes[input_filename]
+    state['temp_data'] = df.columns.to_list()
 
     return state

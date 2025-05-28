@@ -10,12 +10,6 @@ agent = build_agent()
 def model_call(state: AgentState) -> AgentState:
     response = agent.invoke(state['messages'])
 
-    print("\n\n++++++ STATE +++++++")
-    print(state['files_to_process'])
-    print(state['files_to_read'])
-    print(state['temp_data'])
-    print("+++++ EndState +++++\n\n")
-
     return {"messages": [response]}
     
 def should_continue(state: AgentState) -> str: 
@@ -60,10 +54,13 @@ def print_stream(stream):
 #inputs = {"messages": [("user", "Open Dados Colaboradores.xlsx and say what are the columns the columns.")]}
 
 inputs = {
-    "messages": [("user", "Open Exemplo de Resultado.xlsx and say what are their columns.")],
-    "files_to_read": ["Exemplo de Resultado.xlsx"],
-    "files_to_process": [],
-    "temp_data": []
+    "messages": [(
+        "user",
+        "1. Load the Excel file named 'Beneficio 1 - Unimed.xlsx' from the input folder. "
+        #"2. Say what column is the total or salary value"
+        "#2. Say in one or few words what value of work tool or benefit the spending spreadsheet represents. If you can, say the name of the "
+    )]
 }
+
 
 print_stream(app.stream(inputs, stream_mode="values"))
