@@ -1,5 +1,6 @@
 from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode
+from langchain_core.messages import SystemMessage
 from builder import AgentState, get_tools, build_agent, dataframes
 from dotenv import load_dotenv
 
@@ -8,7 +9,31 @@ load_dotenv()
 agent = build_agent()
 
 def model_call(state: AgentState) -> AgentState:
-    response = agent.invoke(state['messages'])
+
+    system_msg = SystemMessage(content="""
+    You are an assistant designed to classify spreadsheets containing information about employee benefits or work tools.
+
+    Your task is:
+    1. Analyze the spreadsheet filename and column names.
+    2. Try to identify the **name of the product or company**
+    3. If you cannot identify the product or company, respond with a short **description of the type of benefit or tool** (e.g., plano de saúde, academia, email).
+    4. Respond in **Portuguese**, using **one word or a short phrase** only — no explanations, no sentences.
+    5. Dont forget to use the columns to answer.
+
+    Examples:
+    - If the spreadsheet have infos about salary or other type of work payment: respond `salário`
+    - If the spreadsheet is clearly about Blob: respond `Blob`
+    - If it's a gym benefit and the name is AllGym: respond `AllGym`
+    - If the spreadsheet is about a health plan but the provider is unknown: respond `plano de saúde`
+    - If it's a tool like Microsoft 365: respond `Microsoft 365`
+    - If unclear, choose the most representative type of benefit/tool based on the available data.
+
+    DO NOT respond with explanations or complete sentences — only a **concise Portuguese label**.
+    """)
+
+
+
+    response = agent.invoke([system_msg] + state['messages'])
 
     return {"messages": [response]}
     
@@ -53,14 +78,14 @@ def print_stream(stream):
 
 #inputs = {"messages": [("user", "Open Dados Colaboradores.xlsx and say what are the columns the columns.")]}
 
+planilhas = ['Beneficio 1 - Unimed', 'Beneficio 2 - Gympass', 'Dados Colaboradores', 'Ferramenta 1 - Github', 'Ferramenta 2 - Google workspace']
+
 inputs = {
     "messages": [(
         "user",
-        "1. Load the Excel file named 'Beneficio 1 - Unimed.xlsx' from the input folder. "
-        #"2. Say what column is the total or salary value"
-        "#2. Say in one or few words what value of work tool or benefit the spending spreadsheet represents. If you can, say the name of the "
+        f"Load the Excel file named '{planilhas[4]}.xlsx' from the input folder. "
+        "Then say in Portuguese, using only one word or a short expression, what benefit or provider the spreadsheet refers to."
     )]
 }
-
 
 print_stream(app.stream(inputs, stream_mode="values"))

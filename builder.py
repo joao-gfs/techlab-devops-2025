@@ -5,7 +5,7 @@ from settings import INPUT_DIR, OUTPUT_DIR
 from typing_extensions import Annotated, Sequence, TypedDict, List, Dict
 from langchain_core.messages import BaseMessage
 from langchain_core.messages import ToolMessage
-from langchain_core.messages import SystemMessage
+
 from langgraph.graph.message import add_messages
 from langchain_core.tools import tool
 from langchain_groq import ChatGroq
@@ -34,7 +34,6 @@ def build_agent() -> ChatGroq:
     return agent
 
 
-
 # TOOLS
 @tool
 def load_excel(state: AgentState, input_filename: str) -> AgentState:
@@ -51,6 +50,7 @@ def load_excel(state: AgentState, input_filename: str) -> AgentState:
     df = pd.read_excel(path)
     
     dataframes[input_filename] = df
+    #state['temp_data'] = [input_filename]
 
     return state
 
