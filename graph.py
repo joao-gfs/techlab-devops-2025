@@ -14,6 +14,7 @@ def model_call(state: AgentState) -> AgentState:
     system_msg = SystemMessage(content="""
     You are an assistant designed to help with spreadsheet data manipulation.
     Use the tools available to best responde the requests.
+    The name of the sheets will be between ''.
     """)
 
     response = agent.invoke([system_msg] + state['messages'])
@@ -67,10 +68,10 @@ inputs = {
     "messages": [
         HumanMessage(
             content=(
-                f"Load the Excel files named '{planilhas[2]}.xlsx' and '{planilhas[1]}' from the input folder. "
+                f"Load the Excel files named '{planilhas[2]}.xlsx', '{planilhas[4]}' and '{planilhas[1]}.xlsx' from the input folder. "
                 "Identify what columns on each file represent the identity document. "
                 "Use the identified columns to merge the files. "
-                "Save the merged file with the name 'final.xlsx'."
+                "Save the merged file with the name 'teste9.xlsx'."
             )
         )
     ]

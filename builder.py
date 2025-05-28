@@ -42,7 +42,6 @@ def load_excel(state: AgentState, input_filename: str) -> AgentState:
     Arguments:
     - input_filename: Name of the Excel file to load (must exist in the input folder).
 
-    After loading, the contents of the file will be available in memory for further processing.
     Use this tool before trying to inspect, modify, or export an Excel file.
     """
     path = os.path.join(INPUT_DIR, input_filename)
@@ -55,12 +54,12 @@ def load_excel(state: AgentState, input_filename: str) -> AgentState:
 
 
 @tool
-def save_excel(state: AgentState, filename: str, output_filename: str) -> str:
+def save_excel(filename: str, output_filename: str) -> str:
     """
     Saves an in-memory Excel file to disk.
 
     Arguments:
-    - filename: The name of the file previously loaded into memory.
+    - filename: The name of the file loaded into memory.
     - output_filename: The name of the Excel file to be saved on disk.
 
     Use this tool after processing or modifying a file, to export the result.
@@ -82,7 +81,7 @@ def get_columns(state: AgentState, input_filename: str) -> AgentState:
     Extracts the column names from a loaded Excel file and stores them in 'temp_data'.
 
     Arguments:
-    - input_filename: The name of the file previously loaded into memory.
+    - input_filename: The name of the file loaded into memory.
 
     Use this tool to inspect the structure of a file and understand what data it contains.
     """
@@ -96,16 +95,15 @@ def get_columns(state: AgentState, input_filename: str) -> AgentState:
     return state
 
 @tool
-def merge_files(state: AgentState, left_df_name: str, right_df_name: str, left_on: str, right_on: str) -> AgentState:
+def merge_files(left_df_name: str, right_df_name: str, left_on: str, right_on: str) -> AgentState:
     """
     Merges two dataframes using specified columns.
 
     Arguments:
-    - state: The current agent state.
-    - left_df_name: Name of the left DataFrame.
-    - right_df_name: Name of the right DataFrame.
-    - left_on: Column name in the left DataFrame to merge on.
-    - right_on: Column name in the right DataFrame to merge on.
+    - left_df_name: Name of left DataFrame.
+    - right_df_name: Name of right DataFrame.
+    - left_on: Column name in left DataFrame to merge on.
+    - right_on: Column name in right DataFrame to merge on.
 
     The result will replace the left DataFrame in memory.
     """
@@ -117,4 +115,4 @@ def merge_files(state: AgentState, left_df_name: str, right_df_name: str, left_o
 
     dataframes[left_df_name] = merged_df
 
-    return state
+    return f"Succesfull merge"
