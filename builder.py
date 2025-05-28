@@ -18,8 +18,7 @@ class AgentState(TypedDict):
     temp_data: List[str]
 
 def get_tools() -> List[tool]:
-    return [load_excel, get_columns, save_excel]
-
+    return [load_excel, get_columns, save_excel, merge_files]
 
 #llama3-8b-8192
 #llama3-70b-8192
@@ -47,16 +46,16 @@ def load_excel(state: AgentState, input_filename: str) -> AgentState:
     Use this tool before trying to inspect, modify, or export an Excel file.
     """
     path = os.path.join(INPUT_DIR, input_filename)
-    df = pd.read_excel(path)
-    
-    dataframes[input_filename] = df
-    #state['temp_data'] = [input_filename]
-
+    try:
+        df = pd.read_excel(path)
+        dataframes[input_filename] = df
+    except Exception as e:
+        state["temp_data"].append(f"Faile to load file '{input_filename}': {e}")
     return state
 
 
 @tool
-def save_excel(state: AgentState, filename: str, output_filename: str) -> AgentState:
+def save_excel(state: AgentState, filename: str, output_filename: str) -> str:
     """
     Saves an in-memory Excel file to disk.
 
@@ -87,7 +86,35 @@ def get_columns(state: AgentState, input_filename: str) -> AgentState:
 
     Use this tool to inspect the structure of a file and understand what data it contains.
     """
+    if input_filename not in dataframes:
+        state["temp_data"].append(f"File '{input_filename}' not loaded yet.")
+        return state
+
     df = dataframes[input_filename]
     state['temp_data'] = df.columns.to_list()
+
+    return state
+
+@tool
+def merge_files(state: AgentState, left_df_name: str, right_df_name: str, left_on: str, right_on: str) -> AgentState:
+    """
+    Merges two dataframes using specified columns.
+
+    Arguments:
+    - state: The current agent state.
+    - left_df_name: Name of the left DataFrame.
+    - right_df_name: Name of the right DataFrame.
+    - left_on: Column name in the left DataFrame to merge on.
+    - right_on: Column name in the right DataFrame to merge on.
+
+    The result will replace the left DataFrame in memory.
+    """
+
+    df1 = dataframes[left_df_name]
+    df2 = dataframes[right_df_name]
+
+    merged_df = pd.merge(df1, df2, left_on=left_on, right_on=right_on, how='outer')
+
+    dataframes[left_df_name] = merged_df
 
     return state
