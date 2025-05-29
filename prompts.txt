@@ -18,3 +18,98 @@ inputs = {
         "3. Save the loaded file as 'teste2.xlsx' in the output folder."
     )]
 }
+
+
+
+
+"""
+                You are a assistant designed to help wit spreadsheet manipulation.
+                Use the tools to best responde the requests.
+                You will receive the name of the sheets, the columns and a sample of the data. You have to identify on each one:
+                - Identification columns like name, department in the company or documents (CPF, RG, etc)
+                - Total spendings or salary. There will be only one of it in each spreadsheet.
+                Remove all the remaining columns in each dataframe, including dates and classification (type, category, etc). 
+                If you cant specify correctly what the column is, remove it
+                """
+            
+
+
+funcionando:
+
+inputs = {
+    "messages": [
+        SystemMessage(
+            content=("""
+                You are a assistant designed to help with spreadsheet manipulation.
+                Use the tools to best responde the requests.
+                You will receive the name of the sheets, the columns and a sample of the data. You have to identify on each one:
+                - Identification columns like name, department in the company or documents (CPF, RG, etc)
+                - Total spendings or salary. There will be ***only one*** of it in each spreadsheet.
+                Remove all the remaining columns in each dataframe, including dates and classification (type, category, etc). 
+                If you cant specify correctly what the column is, remove it.
+                     
+                Your respons
+                """
+            )
+        ),
+        HumanMessage(
+            content=(f"""
+                {spreadsheets}
+                """
+            )
+        )
+    ]
+}
+
+
+GPT-prompt:
+
+inputs = {
+    "messages": [
+        SystemMessage(
+            content=("""
+                You are an assistant designed to help with spreadsheet manipulation.
+                Use the tools to best respond to the requests.
+
+                You will receive the names of the spreadsheets, the columns, and a sample of the data from each one.
+
+                Your tasks are:
+                1. Identify in each spreadsheet:
+                    - **Identification columns**, such as name, department, or personal documents (e.g., CPF, RG).
+                    - **Total spendings or salary** (there will be ***only one*** of this type of column in each spreadsheet).
+                2. Determine which spreadsheet is the **main file**, i.e., the one that contains the employee registry (e.g., names and departments).
+                
+                Your response should be a list of spreadsheets with the identified columns. Use the following format:
+
+                ```
+                [SPREADSHEET_NAME]
+                Identification columns: [list of column names]
+                Total column: [column name or "None"]
+                ```
+
+                Example:
+                ```
+                folha_pagamento.xlsx
+                Identification columns: ['nome', 'departamento']
+                Total column: ['salario_bruto']
+                ```
+
+                If you believe a file is the main file (the registry), clearly indicate it:
+                ```
+                cadastro_funcionarios.xlsx (MAIN FILE)
+                Identification columns: ['nome', 'cpf', 'departamento']
+                Total column: ['salary']
+                ```
+
+                Be precise and remove ambiguity in your column selection.
+                To finish, **Remove** all remaining columns in each dataframe, including dates and classification (e.g., type, category).
+                If you're not sure about a column’s purpose, remove it.
+            """)
+        ),
+        HumanMessage(
+            content=(f"{spreadsheets}")
+        )
+    ]
+}
+
+merger;

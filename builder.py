@@ -1,30 +1,19 @@
-import os
 import pandas as pd
 from langchain.tools import tool
 from settings import INPUT_DIR, OUTPUT_DIR
-from typing_extensions import Annotated, Sequence, TypedDict, List, Dict
+from typing_extensions import Annotated, Sequence, TypedDict, List
 from langchain_core.messages import BaseMessage
 from langchain_core.messages import ToolMessage
-
 from langgraph.graph.message import add_messages
 from langchain_core.tools import tool
 from langchain_groq import ChatGroq
 
-dataframes = {}
+dataframes = {"result": pd.DataFrame()}
 
-# Agent Setting
 class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
-    temp_data: List[str]
 
-def get_tools() -> List[tool]:
-    return [load_excel, get_columns, save_excel, merge_files]
-
-#llama3-8b-8192
-#llama3-70b-8192
-def build_agent() -> ChatGroq:
-    tools = get_tools()
-
+def build_agent(tools) -> ChatGroq:
     agent = ChatGroq(
         model='llama3-70b-8192',
         temperature=0
@@ -32,53 +21,12 @@ def build_agent() -> ChatGroq:
 
     return agent
 
-
-# TOOLS
-@tool
-def load_excel(state: AgentState, input_filename: str) -> AgentState:
-    """
-    Loads an Excel file from disk into memory.
-
-    Arguments:
-    - input_filename: Name of the Excel file to load (must exist in the input folder).
-
-    Use this tool before trying to inspect, modify, or export an Excel file.
-    """
-    path = os.path.join(INPUT_DIR, input_filename)
-    try:
-        df = pd.read_excel(path)
-        dataframes[input_filename] = df
-    except Exception as e:
-        state["temp_data"].append(f"Faile to load file '{input_filename}': {e}")
-    return state
-
+# em vez de ler o excel, apenas pegar os listados nos dataframes
 
 @tool
-def save_excel(filename: str, output_filename: str) -> str:
+def sheet_overview(input_filename: str) -> str:
     """
-    Saves an in-memory Excel file to disk.
-
-    Arguments:
-    - filename: The name of the file loaded into memory.
-    - output_filename: The name of the Excel file to be saved on disk.
-
-    Use this tool after processing or modifying a file, to export the result.
-    """
-    if filename not in dataframes:
-        return f"Error: file '{filename}' not found in memory. Load it first using 'load_excel'."
-
-    path = os.path.join(OUTPUT_DIR, output_filename)
-    df = dataframes[filename]
-
-    df.to_excel(path, index=False)
-
-    return f"File saved successfully as '{output_filename}'"
-
-
-@tool
-def get_columns(state: AgentState, input_filename: str) -> AgentState:
-    """
-    Extracts the column names from a loaded Excel file and stores them in 'temp_data'.
+    Extracts the column names from a Excel file and returns them.
 
     Arguments:
     - input_filename: The name of the file loaded into memory.
@@ -86,33 +34,81 @@ def get_columns(state: AgentState, input_filename: str) -> AgentState:
     Use this tool to inspect the structure of a file and understand what data it contains.
     """
     if input_filename not in dataframes:
-        state["temp_data"].append(f"File '{input_filename}' not loaded yet.")
-        return state
+        return f"File '{input_filename}' not loaded yet."
 
     df = dataframes[input_filename]
-    state['temp_data'] = df.columns.to_list()
 
-    return state
+    return f"Columns: {df.columns.to_list()}. Sample data: {df.head(1).values.tolist()[0]}"
 
 @tool
-def merge_files(left_df_name: str, right_df_name: str, left_on: str, right_on: str) -> AgentState:
+def remove_columns(target_filename: str, columns_to_remove: List['str']):
+
+    """function that removes columns from target files"""
+
+    if target_filename not in dataframes:
+        return f"There is no '{target_filename}' file."
+
+    dataframes[target_filename] = dataframes[target_filename].drop(columns=columns_to_remove, errors="ignore")
+
+    return "Columns removed successfully"
+
+@tool
+def merge_files(left_df_name: str, right_df_name: str, left_on: List[str], right_on: List[str]) -> str:
     """
-    Merges two dataframes using specified columns.
+    Merges two DataFrames using multiple columns.
 
     Arguments:
-    - left_df_name: Name of left DataFrame.
-    - right_df_name: Name of right DataFrame.
-    - left_on: Column name in left DataFrame to merge on.
-    - right_on: Column name in right DataFrame to merge on.
+    - left_df_name: The name of the left DataFrame (already loaded in memory).
+    - right_df_name: The name of the right DataFrame (already loaded in memory).
+    - left_on: A list of column names in the left DataFrame to merge on.
+    - right_on: A list of column names in the right DataFrame to merge on.
 
-    The result will replace the left DataFrame in memory.
+    This tool supports merging on multiple columns. The 'left_on' and 'right_on' lists must have the same length, 
+    and each pair of corresponding columns will be used as merge keys.
+
+    The resulting merged DataFrame will replace the left one in memory.
     """
+
+    if left_df_name not in dataframes:
+        return f"Left file '{left_df_name}' is not loaded."
+    if right_df_name not in dataframes:
+        return f"Right file '{right_df_name}' is not loaded."
 
     df1 = dataframes[left_df_name]
     df2 = dataframes[right_df_name]
+
+    if len(left_on) != len(right_on):
+        return "The number of columns in 'left_on' and 'right_on' must match."
 
     merged_df = pd.merge(df1, df2, left_on=left_on, right_on=right_on, how='outer')
 
     dataframes[left_df_name] = merged_df
 
-    return f"Succesfull merge"
+    return (
+        f"Successful merge of '{left_df_name}' and '{right_df_name}' using columns "
+        f"{left_on} and {right_on}."
+    )
+
+@tool
+def copy_to_result(source_filename: str) -> str:
+    """
+    Copies a DataFrame from memory to the final result file.
+
+    Arguments:
+    - source_filename: The name of the DataFrame (already loaded in memory) to be copied.
+
+    This tool is used to mark a DataFrame as the final result by copying it 
+    to a special key called 'result_file'. This is useful when a specific 
+    intermediate file needs to be designated as the output after a series 
+    of transformations or merges.
+
+    Returns a confirmation message upon success.
+    """
+
+    dataframes["result"] = dataframes[source_filename]
+
+    return f"{source_filename} copied to result successfully."
+
+
+formatter_tools = [sheet_overview, remove_columns]
+merger_tools = [sheet_overview, merge_files, copy_to_result]
