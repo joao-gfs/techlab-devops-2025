@@ -2,15 +2,28 @@ import pandas as pd
 import os
 from settings import INPUT_DIR
 from pprint import pprint
+from tools import dataframes
 
-filename = 'Dados Colaboradores.xlsx'
-path = os.path.join(INPUT_DIR, filename)
-df = pd.read_excel(path)
+def list_files_in(folder: str) -> list[str]:
+    return [f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f))]
 
-df.set_index('Nome', inplace=True)
+def load_dataframes_cache(filenames):
+    for filename in filenames:
+        path = os.path.join(INPUT_DIR, filename)
+        df = pd.read_excel(path)
+        dataframes[filename] = df
 
-pprint(df.to_dict())
+def print_stream(stream):
+    for s in stream:
+        message = s['messages'][-1]
+        if isinstance(message, tuple):
+            print(message)
+        else:
+            message.pretty_print()
 
-
-def convert_df(df: pd.DataFrame, index: str) -> dict:
-    df.set_index(index, imn)
+def save_all_dataframes(output_dir: str = "output"):
+    os.makedirs(output_dir, exist_ok=True)
+    for name, df in dataframes.items():
+        base_name = os.path.splitext(name)[0]
+        output_path = os.path.join(output_dir, f"{base_name}.xlsx")
+        df.to_excel(output_path, index=False)

@@ -1,38 +1,24 @@
 import os
 import pandas as pd
-from typing_extensions import Literal
 from langgraph.graph import StateGraph, END
-from langgraph.types import Command
 from langgraph.prebuilt import ToolNode
 from langchain_core.messages import SystemMessage
 from langchain_core.messages import HumanMessage
-from builder import AgentState, build_agent, merger_tools, formatter_tools, dataframes
+from builder import AgentState, build_agent
+from tools import merger_tools, identifier_tools
 from settings import INPUT_DIR
 from dotenv import load_dotenv
+from functions import list_files_in, load_dataframes_cache, print_stream, save_all_dataframes
 
 # Agents: 
-# 1 identifier: passa as colunas que cada planilha vai ter
-# 1 formatter: recebe essa lista e chama a tool de apagar as colunas desnecessárias.
-# 1 merger: faz o merge das planilhas.
-# 1 somador: escolhe quais as colunas a somar e e faz
+#  identifier: passa as colunas que cada planilha vai ter
+#  eraser: apaga as colunas que não foram identificadas.
+#  renamer: renomeia as colunas de acordo com o tipo de cada beneficio.
+#  copy: copia a planilha principal pra resultados
+#  merger: faz o merge das outras planilhas
+#  somador: escolhe quais as colunas a somar e soma
 
 load_dotenv()
-
-formatter_agent = build_agent(formatter_tools)
-def formatter_call(state: AgentState) -> AgentState:
-    response = formatter_agent.invoke(state['messages'])
-
-    return {"messages": [response]}
-
-
-merger_agent = build_agent(merger_tools)
-def merger_call(state: AgentState) -> AgentState:
-
-    system_msg = SystemMessage(content="""""")
-    response = merger_agent.invoke([system_msg] + state['messages'])
-
-    return {"messages": [response]}
-
 
 def should_continue(state: AgentState) -> str: 
     messages = state["messages"]
@@ -42,118 +28,103 @@ def should_continue(state: AgentState) -> str:
     else:
         return "continue"
 
-graph = StateGraph(AgentState)
-graph.add_node("formatter_agent", formatter_call)
-graph.add_node("merger_agent", merger_call)
 
-graph.set_entry_point("formatter_agent")
+def make_agent_call(tools: list):
+    agent = build_agent(tools)
+    
+    def agent_call(state: AgentState) -> AgentState:
+        response = agent.invoke(state['messages'])
+        return {"messages": [response]}
+    
+    return agent_call
 
-format_tool_node = ToolNode(formatter_tools)
-graph.add_node("formatter_tools", format_tool_node)
+def build_agent_graph(name: str, tools: list):
+    graph = StateGraph(AgentState)
 
-graph.add_conditional_edges(
-    "formatter_agent",
-    should_continue,
-    {
-        "continue": "formatter_tools",
-        "end": "merger_agent"
-    }
-)
-graph.add_edge("formatter_tools", "formatter_agent")
-graph.add_edge("formatter_agent", "merger_agent")
+    call_fn = make_agent_call(tools)
 
-merge_tool_node = ToolNode(merger_tools)
-graph.add_node("merger_tools", merge_tool_node)
+    agent_node = f"{name}_agent"
+    tool_node = f"{name}_tools"
 
-graph.add_conditional_edges(
-    "merger_agent",
-    should_continue,
-    {
-        "continue": "merger_tools",
-        "end": END
-    }
-)
+    graph.add_node(agent_node, call_fn)
+    graph.set_entry_point(agent_node)
 
-graph.add_edge("merger_tools", "merger_agent")
-graph.add_edge("merger_agent", END)
+    graph.add_node(tool_node, ToolNode(tools))
+    graph.add_edge(tool_node, agent_node)
 
-app = graph.compile()
+    graph.add_conditional_edges(
+        agent_node,
+        should_continue,
+        {
+            "continue": tool_node,
+            "end": END
+        }
+    )
 
-def print_stream(stream):
-    for s in stream:
-        message = s['messages'][-1]
-        if isinstance(message, tuple):
-            print(message)
-        else:
-            message.pretty_print()
+    graph.add_edge(agent_node, END)
 
-def list_files_in(folder: str) -> list[str]:
-    return [f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f))]
+    return graph.compile()
 
-def load_dataframes_cache(filenames):
-    for filename in filenames:
-        path = os.path.join(INPUT_DIR, filename)
-        df = pd.read_excel(path)
-        dataframes[filename] = df
 
-spreadsheets = list_files_in(INPUT_DIR)
-load_dataframes_cache(spreadsheets)
+def identifier(spreadsheets: str) -> str:
+    app = build_agent_graph("identifier", identifier_tools)
 
-inputs = {
-    "messages": [
-        SystemMessage(
-            content=("""
-                You are a assistant designed to help with spreadsheet manipulation.
-                Use the tools to best responde the requests.
-                You will receive the name of the sheets, the columns and a sample of the data. You have to identify on each one:
-                - Identification columns like name, department in the company or documents (CPF, RG, etc)
-                - Total spendings or salary. There will be ***only one*** of it in each spreadsheet.
-                Remove all the remaining columns in each dataframe, including dates and classification (type, category, etc). 
-                If you cant specify correctly what the column is, remove it.
-                     
-                Your response should be a list of spreadsheets with the identified columns. Use the following format:
+    load_dataframes_cache(spreadsheets)
 
-                ```
-                [SPREADSHEET_NAME]
-                Identification columns: [list of column names]
-                Total column: [column name or "None"]
-                ```
+    inputs = {
+        "messages": [
+            SystemMessage(
+                content=("""
+                    You are a assistant designed to help with spreadsheet manipulation.
+                    Use the tools to best responde the requests.
+                    You will receive the name of the sheets, the columns and a sample of the data. You have to identify on each one:
+                    - Identification columns like name, department in the company or documents (CPF, RG, etc)
+                    - Total spendings or salary. There will be ***only one*** of it in each spreadsheet.
+                    Remove all the remaining columns in each dataframe, including dates and classification (type, category, etc). 
+                    If you cant specify correctly what the column is, remove it.
+                        
+                    Your response should be a list of spreadsheets with the identified columns. Use the following format:
 
-                Example:
-                ```
-                folha_pagamento.xlsx
-                Identification columns: ['nome', 'departamento']
-                Total column: ['salario_bruto']
-                ```
+                    ```
+                    [SPREADSHEET_NAME]
+                    Identification columns: [list of column names]
+                    Total column: [column name or "None"]
+                    ```
 
-                If you believe a file is the main file (the registry), clearly indicate it:
-                ```
-                cadastro_funcionarios.xlsx (MAIN FILE)
-                Identification columns: ['nome', 'cpf', 'departamento']
-                Total column: ['salary']
-                ```
+                    Example:
+                    ```
+                    folha_pagamento.xlsx
+                    Identification columns: ['nome', 'departamento']
+                    Total column: ['salario_bruto']
+                    ```
 
-                Be precise and remove ambiguity in your column selection.
-                """
+                    If you believe a file is the main file (the registry), clearly indicate it:
+                    ```
+                    cadastro_funcionarios.xlsx (MAIN FILE)
+                    Identification columns: ['nome', 'cpf', 'departamento']
+                    Total column: ['salary']
+                    ```
+
+                    Be precise and remove ambiguity in your column selection.
+                    """
+                )
+            ),
+            HumanMessage(
+                content=(f"""
+                    {spreadsheets}
+                    """
+                )
             )
-        ),
-        HumanMessage(
-            content=(f"""
-                {spreadsheets}
-                """
-            )
-        )
-    ]
-}
+        ]
+    }
+
+    result = app.invoke(inputs)
+
+    return result["messages"][-1].content
 
 
-def save_all_dataframes(output_dir: str = "output"):
-    os.makedirs(output_dir, exist_ok=True)
-    for name, df in dataframes.items():
-        base_name = os.path.splitext(name)[0]
-        output_path = os.path.join(output_dir, f"{base_name}.xlsx")
-        df.to_excel(output_path, index=False)
+if __name__ == "__main__":
 
-print_stream(app.stream(inputs, stream_mode="values"))
-
-save_all_dataframes("resultado")
+    spreadsheets = list_files_in(INPUT_DIR)
+    res = identifier(spreadsheets)
+    print(res)
