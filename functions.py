@@ -3,6 +3,8 @@ import pandas as pd
 from tools import dataframes
 from settings import INPUT_DIR, OUTPUT_DIR
 
+# Funções auxiliares
+
 def list_files_in(folder: str) -> list[str]:
     return [f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f))]
 
@@ -20,6 +22,12 @@ def save_all_dataframes(output_dir: str = OUTPUT_DIR):
         base_name = os.path.splitext(name)[0]
         output_path = os.path.join(output_dir, f"{base_name}.xlsx")
         df.to_excel(output_path, index=False)
+
+
+def save_dataframe(filename: str ,output_dir: str = OUTPUT_DIR):
+    output_path = os.path.join(output_dir, f"{filename}.xlsx")
+    df = dataframes[filename]
+    df.to_excel(output_path, index=False)
 
 
 def print_stream(stream):

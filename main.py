@@ -1,16 +1,18 @@
 from dotenv import load_dotenv
 from settings import INPUT_DIR
 from graph import run_agent, stream_agent_execution
-from functions import list_files_in, load_dataframes_cache, save_all_dataframes
+from functions import list_files_in, load_dataframes_cache, save_all_dataframes, save_dataframe
 from tools import identifier_tools, renamer_tools, eraser_tools, merger_tools, adder_tools
 from langchain_core.messages import SystemMessage, HumanMessage
 
-
+# Configurar ambiente e listar entradas
 load_dotenv()
 
 spreadsheets = list_files_in(INPUT_DIR)
 load_dataframes_cache(spreadsheets)
 
+
+# AGENTE IDENTIFIER: identifica as colunas úteis de cada arquivo e a planilha principal, que tem o cadastro dos funcionários
 inputs_identifier = {
     "messages": [
         SystemMessage(
@@ -57,6 +59,7 @@ res_identifier = run_agent("identifier", inputs_identifier, identifier_tools, qt
 print("[IDENTIFIER:]")
 print(res_identifier)
 
+# AGENTE ERASER: apaga as colunas que não serão usadas no arquivo final. Bom para diminuir o esforço dos outros agentes
 inputs_eraser = {
     "messages": [
         SystemMessage(
@@ -97,6 +100,7 @@ res_eraser = run_agent("eraser", inputs_eraser, eraser_tools, qtd_tokens=1000)
 print("\n[ERASER]")
 print(res_eraser)
 
+# AGENTE RENAMER: renomeia as colunas de valor monetário para o tipo de gasto da planilha referente.
 inputs_renamer = {
     "messages": [
         SystemMessage(
@@ -142,7 +146,7 @@ res_renamer = run_agent("renamer", inputs_renamer, renamer_tools, qtd_tokens=100
 print("\n[RENAMER]")
 print(res_renamer)
 
-
+# AGENTE MERGER: faz a juncao das planilhas na planilha principal
 inputs_merger = {
     "messages": [
         SystemMessage(
@@ -181,7 +185,7 @@ res_merger = stream_agent_execution("merger", inputs_merger, merger_tools, qtd_t
 print("\n[MERGER]")
 print(res_merger)
 
-
+# AGENTE FINAL ERASER: ao fazer a juncao, colunas com nome diferente mas dados iguais ficam redundantes. Este agente apaga essas colunas, para que fique mais organizado
 inputs_final_eraser = {
         "messages": [
             SystemMessage(
@@ -214,6 +218,7 @@ res_final_eraser = run_agent("eraser", inputs_final_eraser, eraser_tools, qtd_to
 print("\n[FINAL ERASER]")
 print(res_final_eraser)
 
+# AGENTE ADDER: Identifica as colunas com valores monetários e as soma, criando uma coluna chamada Total.
 inputs_adder = {
     "messages": [
         SystemMessage(
@@ -244,4 +249,4 @@ res_adder = stream_agent_execution("adder", inputs_adder, adder_tools, qtd_token
 print("\n[ADDER]")
 print(res_adder)
 
-save_all_dataframes()
+save_dataframe(filename=res_merger)

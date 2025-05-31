@@ -2,9 +2,12 @@ import pandas as pd
 from typing_extensions import List
 from langchain_core.tools import tool
 
-# Cache dos dataframes manipulados
+# Cache dos dataframes provenientes das planilhas. Esses são os dados que os agentes manipulam.
+# O cache é util pois as LLMs não conseguem lidar com tipos complexos como pd.Dataframe, apenas tipos como string ou int
 dataframes = {}
 
+
+# Ferramentas usadas pelos agentes para manipular as planilhas
 @tool
 def sheet_overview(input_filename: str) -> str:
     """
@@ -99,6 +102,7 @@ def add_columns(target_filename: str, columns_to_add: List[str]) -> str:
     return f"Columns added sucessfully'."
 
 
+# As tools são diferentes para cada agente, assim eles tem menos esforço para escolher o que fazer
 identifier_tools = [sheet_overview]
 eraser_tools = [sheet_overview, remove_columns]
 renamer_tools = [rename_column]

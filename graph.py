@@ -1,6 +1,6 @@
 from langgraph.prebuilt import ToolNode
 from langgraph.graph import StateGraph, END
-from builder import AgentState, make_agent_call
+from agent_builder import AgentState, make_agent_call
 
 # Agents: 
 #  [X] identifier: passa as colunas que cada planilha vai ter
@@ -55,6 +55,7 @@ def run_agent(name: str ,prompt: dict, tools: list, qtd_tokens: int, parallel=Tr
     return result["messages"][-1].content
 
 
+# Função usada para debug, acompanha todos os passos do procesos do agente
 def stream_agent_execution(name: str, prompt: dict, tools: list, qtd_tokens: int, parallel: bool = True) -> str:
     app = build_agent_graph(name, tools, qtd_tokens, parallel)
 
