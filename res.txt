@@ -1,51 +1,21 @@
-================================ Human Message =================================
+BadRequestError: Error code: 400 - {'error': {'message': "Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '<tool-use>{"tool_calls":[
 
-Open Exemplo de Resultado.xlsx and say what are the columns.
+{"id":"call_remove_6y3t":"function",
+"function":{"name":"remove_columns"},
+"parameters":
+{"columns_to_remove":["Data Ativacao","Plano","Parcela","Valor Parcela Assinante","Coparticipacao","Valor Desconto Coparticipação"],
+"target_filename":"Beneficio 2 - Gympass.xlsx"}},
 
+{"id":"call_remove_ghtf","type":
+"function","name":"remove_columns"},
+"parameters":
+{"columns_to_remove":["Tipo","Idade","Dependência","Data Limite","Data Inclusão","Data Exclusão","Rubrica","Outros"],
+"target_filename":"Beneficio 1 - Unimed.xlsx"}},
 
-++++++ STATE +++++++
-{'messages': [HumanMessage(content='Open Exemplo de Resultado.xlsx and say what are the columns.', additional_kwargs={}, response_metadata={}, id='76c7f699-2d2c-4f83-a201-ebf3dcb5852e')], 'files_to_read': ['Dados Colaboradores.xlsx'], 'files_to_process': [], 'temp_data': []}
-+++++ EndState +++++
+{"id":"call_remove_m4x5","type":
+"function","function":{"name":"remove_columns"},
+"parameters":
+{"columns_to_remove":[],
+"target_filename":"Dados Colaboradores.xlsx"}},
 
-
-================================== Ai Message ==================================
-Tool Calls:
-  load_excel (call_th1e)
- Call ID: call_th1e
-  Args:
-    filename: Exemplo de Resultado.xlsx
-    state: {'files_to_process': ['Exemplo de Resultado.xlsx'], 'files_to_read': ['Exemplo de Resultado.xlsx'], 'messages': [], 'temp_data': []}
-================================= Tool Message =================================
-Name: load_excel
-
-{"messages": [], "files_to_read": [], "files_to_process": ["Exemplo de Resultado.xlsx", "Exemplo de Resultado.xlsx"], "temp_data": []}
-
-++++++ STATE +++++++
-{'messages': [HumanMessage(content='Open Exemplo de Resultado.xlsx and say what are the columns.', additional_kwargs={}, response_metadata={}, id='76c7f699-2d2c-4f83-a201-ebf3dcb5852e'), AIMessage(content='', additional_kwargs={'tool_calls': [{'id': 'call_th1e', 'function': {'arguments': '{"filename":"Exemplo de Resultado.xlsx","state":{"files_to_process":["Exemplo de Resultado.xlsx"],"files_to_read":["Exemplo de Resultado.xlsx"],"messages":[],"temp_data":[]}}', 'name': 'load_excel'}, 'type': 'function'}]}, response_metadata={'token_usage': {'completion_tokens': 91, 'prompt_tokens': 3287, 'total_tokens': 3378, 'completion_time': 0.384738384, 'prompt_time': 0.127851907, 'queue_time': 0.30922188500000003, 'total_time': 0.512590291}, 'model_name': 'llama3-70b-8192', 'system_fingerprint': 'fp_dd4ae1c591', 'finish_reason': 'tool_calls', 'logprobs': None}, id='run--de1d0d3b-6600-4824-b22f-0995ee40dad9-0', tool_calls=[{'name': 'load_excel', 'args': {'filename': 'Exemplo de Resultado.xlsx', 'state': {'files_to_process': ['Exemplo de Resultado.xlsx'], 'files_to_read': ['Exemplo de Resultado.xlsx'], 'messages': [], 'temp_data': []}}, 'id': 'call_th1e', 'type': 'tool_call'}], usage_metadata={'input_tokens': 3287, 'output_tokens': 91, 'total_tokens': 3378}), ToolMessage(content='{"messages": [], "files_to_read": [], "files_to_process": ["Exemplo de Resultado.xlsx", "Exemplo de Resultado.xlsx"], "temp_data": []}', name='load_excel', id='e2877459-1eba-444e-b37a-4b5f3e99df48', tool_call_id='call_th1e')], 'files_to_read': ['Dados Colaboradores.xlsx'], 'files_to_process': [], 'temp_data': []}
-+++++ EndState +++++
-
-================================== Ai Message ==================================
-Tool Calls:
-  get_columns (call_ajs4)
- Call ID: call_ajs4
-  Args:
-    filename: Exemplo de Resultado.xlsx
-    state: {'files_to_process': ['Exemplo de Resultado.xlsx', 'Exemplo de Resultado.xlsx'], 'files_to_read': [], 'messages': [], 'temp_data': []}
-================================= Tool Message =================================
-Name: get_columns
-
-{"messages": [], "files_to_read": [], "files_to_process": ["Exemplo de Resultado.xlsx", "Exemplo de Resultado.xlsx"], "temp_data": ["Nome Colaborador", "CPF", "Centro de Custo", "Salario", "Github", "Google workspace", "Unimed", "Gympass", "Valor Total"]}
-++++++ STATE +++++++
-{'messages': [HumanMessage(content='Open Exemplo de Resultado.xlsx and say what are the columns.', additional_kwargs={}, response_metadata={}, id='76c7f699-2d2c-4f83-a201-ebf3dcb5852e'), AIMessage(content='', additional_kwargs={'tool_calls': [{'id': 'call_th1e', 'function': {'arguments': '{"filename":"Exemplo de Resultado.xlsx","state":{"files_to_process":["Exemplo de Resultado.xlsx"],"files_to_read":["Exemplo de Resultado.xlsx"],"messages":[],"temp_data":[]}}', 'name': 'load_excel'}, 'type': 'function'}]}, response_metadata={'token_usage': {'completion_tokens': 91, 'prompt_tokens': 3287, 'total_tokens': 3378, 'completion_time': 0.384738384, 'prompt_time': 0.127851907, 'queue_time': 0.30922188500000003, 'total_time': 0.512590291}, 'model_name': 'llama3-70b-8192', 'system_fingerprint': 'fp_dd4ae1c591', 'finish_reason': 'tool_calls', 'logprobs': None}, id='run--de1d0d3b-6600-4824-b22f-0995ee40dad9-0', tool_calls=[{'name': 'load_excel', 'args': {'filename': 'Exemplo de Resultado.xlsx', 'state': {'files_to_process': ['Exemplo de Resultado.xlsx'], 'files_to_read': ['Exemplo de Resultado.xlsx'], 'messages': [], 'temp_data': []}}, 'id': 'call_th1e', 'type': 'tool_call'}], usage_metadata={'input_tokens': 3287, 'output_tokens': 91, 'total_tokens': 3378}), ToolMessage(content='{"messages": [], "files_to_read": [], "files_to_process": ["Exemplo de Resultado.xlsx", "Exemplo de Resultado.xlsx"], "temp_data": []}', name='load_excel', id='e2877459-1eba-444e-b37a-4b5f3e99df48', tool_call_id='call_th1e'), AIMessage(content='', additional_kwargs={'tool_calls': [{'id': 'call_ajs4', 'function': {'arguments': '{"filename":"Exemplo de Resultado.xlsx","state":{"files_to_process":["Exemplo de Resultado.xlsx","Exemplo de Resultado.xlsx"],"files_to_read":[],"messages":[],"temp_data":[]}}', 'name': 'get_columns'}, 'type': 'function'}]}, response_metadata={'token_usage': {'completion_tokens': 72, 'prompt_tokens': 3424, 'total_tokens': 3496, 'completion_time': 0.282391924, 'prompt_time': 0.129138572, 'queue_time': 0.638201795, 'total_time': 0.411530496}, 'model_name': 'llama3-70b-8192', 'system_fingerprint': 'fp_dd4ae1c591', 'finish_reason': 'tool_calls', 'logprobs': None}, id='run--8a0d9391-f8c6-4801-8cf7-0d6bfae982af-0', tool_calls=[{'name': 'get_columns', 'args': {'filename': 'Exemplo de Resultado.xlsx', 'state': {'files_to_process': ['Exemplo de Resultado.xlsx', 'Exemplo de Resultado.xlsx'], 'files_to_read': [], 'messages': [], 'temp_data': []}}, 'id': 'call_ajs4', 'type': 'tool_call'}], usage_metadata={'input_tokens': 3424, 'output_tokens': 72, 'total_tokens': 3496}), ToolMessage(content='{"messages": [], "files_to_read": [], "files_to_process": ["Exemplo de Resultado.xlsx", "Exemplo de Resultado.xlsx"], "temp_data": ["Nome Colaborador", "CPF", "Centro de Custo", "Salario", "Github", "Google workspace", "Unimed", "Gympass", "Valor Total"]}', name='get_columns', id='999986b0-6092-4734-9362-9372bd70365c', tool_call_id='call_ajs4')], 'files_to_read': ['Dados Colaboradores.xlsx'], 'files_to_process': [], 'temp_data': []}
-+++++ EndState +++++
-================================== Ai Message ==================================
-
-The columns of the Exemplo de Resultado.xlsx" file are: "Nome Colaborador", "CPF", "Centro de Custo", "Salario", "Github", "Google workspace", "Unimed", "Gympass", "Valor Total".
-================================== Ai Message ==================================
-
-The columns of the Exemplo de Resultado.xlsx" file are: "Nome Colaborador", "CPF", "Centro de Custo", "Salario", "Github", "Google workspace", "Unimed", "Gympass", "Valor Total".
-++++++ STATE +++++++
-{'messages': [HumanMessage(content='Open Exemplo de Resultado.xlsx and say what are the columns.', additional_kwargs={}, response_metadata={}, id='76c7f699-2d2c-4f83-a201-ebf3dcb5852e'), AIMessage(content='', additional_kwargs={'tool_calls': [{'id': 'call_th1e', 'function': {'arguments': '{"filename":"Exemplo de Resultado.xlsx","state":{"files_to_process":["Exemplo de Resultado.xlsx"],"files_to_read":["Exemplo de Resultado.xlsx"],"messages":[],"temp_data":[]}}', 'name': 'load_excel'}, 'type': 'function'}]}, response_metadata={'token_usage': {'completion_tokens': 91, 'prompt_tokens': 3287, 'total_tokens': 3378, 'completion_time': 0.384738384, 'prompt_time': 0.127851907, 'queue_time': 0.30922188500000003, 'total_time': 0.512590291}, 'model_name': 'llama3-70b-8192', 'system_fingerprint': 'fp_dd4ae1c591', 'finish_reason': 'tool_calls', 'logprobs': None}, id='run--de1d0d3b-6600-4824-b22f-0995ee40dad9-0', tool_calls=[{'name': 'load_excel', 'args': {'filename': 'Exemplo de Resultado.xlsx', 'state': {'files_to_process': ['Exemplo de Resultado.xlsx'], 'files_to_read': ['Exemplo de Resultado.xlsx'], 'messages': [], 'temp_data': []}}, 'id': 'call_th1e', 'type': 'tool_call'}], usage_metadata={'input_tokens': 3287, 'output_tokens': 91, 'total_tokens': 3378}), ToolMessage(content='{"messages": [], "files_to_read": [], "files_to_process": ["Exemplo de Resultado.xlsx", "Exemplo de Resultado.xlsx"], "temp_data": []}', name='load_excel', id='e2877459-1eba-444e-b37a-4b5f3e99df48', tool_call_id='call_th1e'), AIMessage(content='', additional_kwargs={'tool_calls': [{'id': 'call_ajs4', 'function': {'arguments': '{"filename":"Exemplo de Resultado.xlsx","state":{"files_to_process":["Exemplo de Resultado.xlsx","Exemplo de Resultado.xlsx"],"files_to_read":[],"messages":[],"temp_data":[]}}', 'name': 'get_columns'}, 'type': 'function'}]}, response_metadata={'token_usage': {'completion_tokens': 72, 'prompt_tokens': 3424, 'total_tokens': 3496, 'completion_time': 0.282391924, 'prompt_time': 0.129138572, 'queue_time': 0.638201795, 'total_time': 0.411530496}, 'model_name': 'llama3-70b-8192', 'system_fingerprint': 'fp_dd4ae1c591', 'finish_reason': 'tool_calls', 'logprobs': None}, id='run--8a0d9391-f8c6-4801-8cf7-0d6bfae982af-0', tool_calls=[{'name': 'get_columns', 'args': {'filename': 'Exemplo de Resultado.xlsx', 'state': {'files_to_process': ['Exemplo de Resultado.xlsx', 'Exemplo de Resultado.xlsx'], 'files_to_read': [], 'messages': [], 'temp_data': []}}, 'id': 'call_ajs4', 'type': 'tool_call'}], usage_metadata={'input_tokens': 3424, 'output_tokens': 72, 'total_tokens': 3496}), ToolMessage(content='{"messages": [], "files_to_read": [], "files_to_process": ["Exemplo de Resultado.xlsx", "Exemplo de Resultado.xlsx"], "temp_data": ["Nome Colaborador", "CPF", "Centro de Custo", "Salario", "Github", "Google workspace", "Unimed", "Gympass", "Valor Total"]}', name='get_columns', id='999986b0-6092-4734-9362-9372bd70365c', tool_call_id='call_ajs4'), AIMessage(content='The columns of the Exemplo de Resultado.xlsx" file are: "Nome Colaborador", "CPF", "Centro de Custo", "Salario", "Github", "Google workspace", "Unimed", "Gympass", "Valor Total".', additional_kwargs={}, response_metadata={'token_usage': {'completion_tokens': 56, 'prompt_tokens': 3601, 'total_tokens': 3657, 'completion_time': 0.219578189, 'prompt_time': 0.146277627, 'queue_time': 0.6468147989999999, 'total_time': 0.365855816}, 'model_name': 'llama3-70b-8192', 'system_fingerprint': 'fp_dd4ae1c591', 'finish_reason': 'stop', 'logprobs': None}, id='run--6f11267e-cec7-41e9-9fc7-de89e17b45f0-0', usage_metadata={'input_tokens': 3601, 'output_tokens': 56, 'total_tokens': 3657})], 'files_to_read': ['Dados Colaboradores.xlsx'], 'files_to_process': [], 'temp_data': []}
-+++++ EndState +++++
-================================== Ai Message ==================================
-================================== Ai Message ==================================
+{"id":"call_remove_0w2v","type":"function","function":{"name":"remove_columns"},"parameters":{"columns_to_remove":["Data Ativacao"],"target_filename":"Ferramenta 2 - Google workspace.xlsx"}},{"id":"call_remove_p5at","type":"function","function":{"name":"remove_columns"},"parameters":{"columns_to_remove":["Data Ativacao","Copilot","Licença"],"target_filename":"Ferramenta 1 - Github.xlsx"}}]}</tool-use>'}}

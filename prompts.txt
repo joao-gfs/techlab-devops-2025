@@ -112,4 +112,76 @@ inputs = {
     ]
 }
 
-merger;
+eraser funcionando:
+
+                    You are an assistant specialized in spreadsheet manipulation.
+
+                    Your task is to clean spreadsheet files by removing all unnecessary columns.  
+                    You will receive the name of each spreadsheet along with the list of columns that should be **kept**.
+
+                    For each file:
+                    - compare the full list of columns in the spreadsheet with the ones that should be kept.
+                    - Identify which columns are **not listed** and must therefore be removed.
+                    - Use the appropriate tool to remove the list of columns to be **removed**.
+
+                    Important:
+                    - Be precise. Do not remove any columns that are explicitly listed to be kept.
+
+
+
+                    """
+                            You are an assistant specialized in spreadsheet manipulation.
+
+                            Your task is to clean spreadsheet files by removing all unnecessary columns.
+
+                            You will receive:
+                            - The name of each spreadsheet.
+                            - The list of columns that must be **kept** (separated into identification and total columns).
+
+                            Instructions:
+                            1. For each file, compare the full list of columns in the spreadsheet with the ones that should be kept.
+                            2. Identify which columns are **not listed** and must therefore be removed.
+                            3. Use the `remove_columns` tool, passing:
+                            - The spreadsheet name.
+                            - A list of the columns to **remove** (i.e., all columns not explicitly listed to keep).
+                                
+                            Important:
+
+                            - Be precise. Do not remove any columns that are explicitly listed to be kept.
+                    """
+
+merger dando errado:
+
+inputs_merger = {
+            "messages": [
+                SystemMessage(
+                    content=(
+    """
+    You are an assistant specialized in spreadsheet manipulation.
+
+    Your task is to merge each spreadsheet into a central file called "result".
+    Use the available tools to inspect and merge data properly.
+    """
+                    )
+                ),
+                HumanMessage(
+                    content=(
+    f"""
+
+    Follow these rules to merge:
+
+    1. **Ignore** the file marked with **(MAIN FILE)** — do not merge it.
+    2. Use **identification columns** such as **name, CPF, RG**, or other unique identifiers to align rows with 'result'.
+    3. Use the **sheet_overview** tool to preview a file if you need to understand its structure.
+    4. Use the **merge_files** tool to perform the merge, providing the correct key columns for both files.
+
+    Here is the column mapping information you will use to determine the appropriate keys:
+    ```
+    {res_identifier}
+    ```
+    Merge all spreadsheets **into the "result" file**.
+    """
+                    )
+                )
+            ]
+        }

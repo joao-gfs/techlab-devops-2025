@@ -3,7 +3,7 @@ from typing_extensions import Annotated, Sequence, TypedDict, List
 from langchain_core.tools import tool
 
 # Cache dos dataframes manipulados
-dataframes = {"result": pd.DataFrame()}
+dataframes = {}
 
 @tool
 def sheet_overview(input_filename: str) -> str:
@@ -23,14 +23,23 @@ def sheet_overview(input_filename: str) -> str:
     return f"Columns: {df.columns.to_list()}. Sample data: {df.head(1).values.tolist()[0]}"
 
 @tool
-def remove_columns(target_filename: str, columns_to_remove: List['str']):
+def remove_columns(target_filename: str, columns_to_remove: List[str]):
 
-    """function that removes columns from target files"""
+    """
+        Removes the specified columns from the given spreadsheet.
+
+        Parameters:
+        - target_filename (str): The name of the spreadsheet (must already be loaded in memory).
+        - columns_to_remove (List[str]): A list of column names to be removed from the file.
+    """
 
     if target_filename not in dataframes:
         return f"There is no '{target_filename}' file."
+    
+    if columns_to_remove == []:
+        return "No columns provided to remove"
 
-    dataframes[target_filename] = dataframes[target_filename].drop(columns=columns_to_remove, errors="ignore")
+    dataframes[target_filename] = dataframes[target_filename].drop(columns=columns_to_remove, errors='raise')
 
     return "Columns removed successfully"
 
@@ -72,38 +81,26 @@ def merge_files(left_df_name: str, right_df_name: str, left_on: List[str], right
     )
 
 @tool
-def copy_to_result(source_filename: str) -> str:
+def rename_column(target_filename: str, current_column_name: str, new_name: str) -> str:
     """
-    Copies a DataFrame from memory to the final result file.
-
-    Arguments:
-    - source_filename: The name of the DataFrame (already loaded in memory) to be copied.
-
-    This tool is used to mark a DataFrame as the final result by copying it 
-    to a special key called 'result_file'. This is useful when a specific 
-    intermediate file needs to be designated as the output after a series 
-    of transformations or merges.
-
-    Returns a confirmation message upon success.
+    Rename 'current_column_name' to 'new_name' in the spreadsheet 'target_filename'.
     """
+    dataframes[target_filename] = dataframes[target_filename].rename(columns={current_column_name: new_name})
 
-    dataframes["result"] = dataframes[source_filename]
+    return "Renaming successful"
 
-    return f"{source_filename} copied to result successfully."
+def add_columns(target_filename: str, columns_to_add: List[str]) -> str:
+    """
+    Sums the 'columns_to_sum' in the file 'target_filename'.
+    """
+    df = dataframes[target_filename]
+    df["Total"] = df[columns_to_add].sum(axis=1)
+
+    return f"Columns added sucessfully'."
 
 
 identifier_tools = [sheet_overview]
 eraser_tools = [sheet_overview, remove_columns]
+renamer_tools = [rename_column]
 merger_tools = [sheet_overview, merge_files]
-
-
-
-
-
-"""merger_agent = build_agent(merger_tools)
-def merger_call(state: AgentState) -> AgentState:
-
-    system_msg = SystemMessage(content="""""")
-    response = merger_agent.invoke([system_msg] + state['messages'])
-
-    return {"messages": [response]}"""
+adder_tools = [sheet_overview, add_columns]
