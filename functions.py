@@ -1,11 +1,11 @@
-import pandas as pd
 import os
-from settings import INPUT_DIR, OUTPUT_DIR
-from pprint import pprint
+import pandas as pd
 from tools import dataframes
+from settings import INPUT_DIR, OUTPUT_DIR
 
 def list_files_in(folder: str) -> list[str]:
     return [f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f))]
+
 
 def load_dataframes_cache(filenames, input_dir: str=INPUT_DIR):
     for filename in filenames:

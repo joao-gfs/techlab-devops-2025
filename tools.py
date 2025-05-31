@@ -1,5 +1,5 @@
 import pandas as pd
-from typing_extensions import Annotated, Sequence, TypedDict, List
+from typing_extensions import List
 from langchain_core.tools import tool
 
 # Cache dos dataframes manipulados
