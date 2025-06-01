@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from settings import INPUT_DIR
 from graph import run_agent, stream_agent_execution
-from functions import list_files_in, load_dataframes_cache, save_all_dataframes, save_dataframe
+from utils import list_files_in, load_dataframes_cache, save_dataframe
 from tools import identifier_tools, renamer_tools, eraser_tools, merger_tools, adder_tools
 from langchain_core.messages import SystemMessage, HumanMessage
 
@@ -236,7 +236,6 @@ Instructions:
 1. Analyse the sample data in the file and identify the monetary columns
 2. Sum them using the 'add_columns' tools
 You **MUST** pass the name of the file WITH the extension (.xlsx)
-You dont need to see the result, just sum and finish
 
 File: {res_merger}
     """
@@ -249,4 +248,4 @@ res_adder = stream_agent_execution("adder", inputs_adder, adder_tools, qtd_token
 print("\n[ADDER]")
 print(res_adder)
 
-save_dataframe(filename=res_merger)
+save_dataframe(dataframe=res_merger, filename="Planilha Resultado.xlsx")

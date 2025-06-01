@@ -2,13 +2,6 @@ from langgraph.prebuilt import ToolNode
 from langgraph.graph import StateGraph, END
 from agent_builder import AgentState, make_agent_call
 
-# Agents: 
-#  [X] identifier: passa as colunas que cada planilha vai ter
-#  [X] eraser: apaga as colunas que não foram identificadas.
-#  [X] renamer: renomeia as colunas de acordo com o tipo de cada beneficio.
-#  [X] merger: faz o merge das outras planilhas
-#  [X] final eraser: apaga colunas repetidas no documento mergeado
-#  [x] somador: escolhe quais as colunas a somar e soma
 
 def should_continue(state: AgentState) -> str: 
     messages = state["messages"]

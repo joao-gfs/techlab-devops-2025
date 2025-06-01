@@ -24,9 +24,9 @@ def save_all_dataframes(output_dir: str = OUTPUT_DIR):
         df.to_excel(output_path, index=False)
 
 
-def save_dataframe(filename: str ,output_dir: str = OUTPUT_DIR):
+def save_dataframe(dataframe: str , filename: str,output_dir: str = OUTPUT_DIR):
     output_path = os.path.join(output_dir, f"{filename}.xlsx")
-    df = dataframes[filename]
+    df = dataframes[dataframe]
     df.to_excel(output_path, index=False)
 
 
