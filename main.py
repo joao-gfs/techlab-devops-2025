@@ -11,7 +11,6 @@ load_dotenv()
 spreadsheets = list_files_in(INPUT_DIR)
 load_dataframes_cache(spreadsheets)
 
-
 # AGENTE IDENTIFIER: identifica as colunas úteis de cada arquivo e a planilha principal, que tem o cadastro dos funcionários
 inputs_identifier = {
     "messages": [
@@ -56,7 +55,7 @@ Be precise and remove ambiguity in your column selection.
     ]
 }
 res_identifier = run_agent("identifier", inputs_identifier, identifier_tools, qtd_tokens=1000)
-print("[IDENTIFIER:]")
+print("[IDENTIFIER]")
 print(res_identifier)
 
 # AGENTE ERASER: apaga as colunas que não serão usadas no arquivo final. Bom para diminuir o esforço dos outros agentes
@@ -248,4 +247,4 @@ res_adder = run_agent("adder", inputs_adder, adder_tools, qtd_tokens=750)
 print("\n[ADDER]")
 print(res_adder)
 
-save_dataframe(dataframe=res_merger, filename="Planilha Resultado.xlsx")
+save_dataframe(dataframe=res_merger, filename="Planilha Resultado")
