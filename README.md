@@ -2,6 +2,8 @@
 
 Este repositório contém a submissão do código referente ao **Desafio Agent (Devops)** do **TechLab CEU 2025**.
 
+**Participante:** João Guilherme F. da Silva
+
 ## Desafio
 Criar um Agente de Inteligência Artificial que faça o rateio de custos de uma empresa com base em planilhas de gastos.
 
@@ -32,6 +34,7 @@ root/
  - **Python 3.10+** - Linguagem do projeto
  - **Pandas** - Manipulação de dados
  - **llama-3.3-70b-versatile** - Modelo de LLM usado como motor do projeto
+ - **Groq** - Plataforma de inferência ultrarrápida para LLMs, utilizada para acelerar a execução do modelo Llama
  - **LangGraph** - Framework de Agentes IA
  - **Git** - Controle de versão
 
@@ -42,6 +45,8 @@ A arquitetura é um pipeline de agentes simples e especializados, em que cada um
 Os agentes LangGraph não conseguem trabalhar com tipos complexos como `Dataframe` do pandas. Por isso, é utilizado um cache em forma de dicionário que contém os dataframes provenientes das planilhas. 
 
 Todas as interações com os dados são intermediadas pelas `tools`, que acessam esse dicionário, extraem ou operam as ações necessárias, e retornam apenas `strings`. A chaves para cada dataframe são os nomes das planilhas reais.
+
+A solução foi feita visando adaptabilidade e eficiência, garantindo fácil execução mesmo em máquinas com recursos limitados.
 
 ### Tools
 
