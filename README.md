@@ -16,8 +16,8 @@ O Agente precisa ser dinâmico e capaz de lidar com diferentes estruturas sem ne
 ```
 root/
 ├── data/                   # Dados de entrada e saída
-│   ├── input/              # Planilhas de entrada
-│   └── output/             # Planilhas de saída
+│   ├── input/              
+│   └── output/             
 ├── .env                    # Variáveis de ambiente
 ├── requirements.py         # Dependências do projeto
 ├── main.py                 # Execução principal do programa
