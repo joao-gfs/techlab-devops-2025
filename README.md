@@ -94,3 +94,37 @@ Isso é necessário porque a função merge do pandas mantém todas as colunas u
 
 **6. Adder**: Recebe a saída do **Merger**, consulta quais colunas têm valor monetário no arquivo principal e as soma, criando uma nova coluna **Total**.
 
+## Como executar
+
+Para executar o projeto você precisar ter o `python 3.10+` instalado e uma chave de API do [`Groq`](https://groq.com/). Após se certificar quem tem ambos, siga o passo a passo:
+
+1. Clone o repositório:
+
+```bash
+git clone https://github.com/joao-gfs/techlab-devops-2025.git
+
+cd techlab-devops-2025
+```
+
+2. Instale as dependências:
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Configure o arquivo `.env` com a chave da API:
+
+```
+GROQ_API_KEY=sua_chave_do_groq
+```
+
+4. Execute o programa:
+```bash
+python main.py
+```
+
+ou
+
+```bash
+python3 main.py
+```
