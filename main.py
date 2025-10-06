@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from settings import INPUT_DIR
-from graph import run_agent
+from graph import run_agent, stream_agent_execution
 from utils import list_files_in, load_dataframes_cache, save_dataframe
 from tools import identifier_tools, renamer_tools, eraser_tools, merger_tools, adder_tools
 from langchain_core.messages import SystemMessage, HumanMessage
@@ -243,7 +243,7 @@ File: {res_merger}
     ]
 }
 
-res_adder = run_agent("adder", inputs_adder, adder_tools, qtd_tokens=750)
+res_adder = stream_agent_execution("adder", inputs_adder, adder_tools, qtd_tokens=750)
 print("\n[ADDER]")
 print(res_adder)
 
